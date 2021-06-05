@@ -1,46 +1,66 @@
 package com.xfactor.lably.controllers;
 
-import org.springframework.web.bind.annotation.RestController;
+import java.util.ArrayList;
+//import java.util.HashMap;
+//import java.util.Map;
+import java.util.List;
 
-import java.util.HashMap;
+
+import com.xfactor.lably.entity.Admin;
+import com.xfactor.lably.repository.AdminRepository;
+
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+//import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-    @GetMapping()
-    public String hello_world() {
-        return "Hello world!!!";
+    ArrayList<Admin> admins = new ArrayList<>();
+
+
+    @Autowired
+    AdminRepository adminRepository;
+
+    @GetMapping("/getAdmin")
+    public ArrayList<Admin> getAdmin() {
+        return admins;
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello from AdminController!!!";
+    @PostMapping("/addAdmin")
+    public Admin addAdmin(@RequestBody Admin admin) {
+        //admins.add(admin);
+        Admin persistedAdmin = adminRepository.save(admin);
+        return persistedAdmin;
     }
 
-    @GetMapping("/greet/{text}")
-    public String greet(@PathVariable String text) {
-        return "Greetings from " + text;
+    @GetMapping("/getAllAdmins")
+    public List<Admin> getAdmins(){
+        List<Admin> persistedAdmins = adminRepository.findAll();
+        return persistedAdmins;
     }
 
-    @GetMapping("/greet2")
-    public String greet2(@RequestParam String name, @RequestParam String age, @RequestParam String city) {
-        return "Greetings from " + " " + name + " " + age + " " + city;
-    }
+    @GetMapping("/search")
+    public ArrayList<Admin> searchAdmin(@RequestParam String username){
 
-    @GetMapping("/greet3")
-    public HashMap<String, String> greet3(@RequestParam String name, @RequestParam String age,
-            @RequestParam String city) {
-        HashMap<String, String> resp = new HashMap<>();
-        resp.put("name", name);
-        resp.put("age", age);
-        resp.put("city", city);
-        return resp;
+        ArrayList<Admin> ad= new ArrayList<>();
+        boolean f = false;
+
+        for(Admin a: admins){
+            if(a.getUsername().equals(username)){
+                f = true;
+                ad.add(a);
+            }              
+        }
+        if(f==true) return ad;
+        else return null;
     }
 
 }
